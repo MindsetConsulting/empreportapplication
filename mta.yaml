@@ -1,0 +1,94 @@
+_schema-version: "3.2"
+ID: emp-social-empreportapplication
+description: A Fiori application.
+version: 0.0.1
+modules:
+- name: emp-social-empreportapplication-dest-content
+  type: com.sap.application.content
+  requires:
+  - name: emp-social-empreportapplication-dest-srv
+    parameters:
+      content-target: true
+  - name: emp-social-empreportapplication-repo-host
+    parameters:
+      service-key:
+        name: emp-social-empreportapplication-repo-host-key
+  - name: emp-social-empreportapplication-uaa
+    parameters:
+      service-key:
+        name: emp-social-empreportapplication-uaa-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: emp-social-empreportapplication_repo_host
+          ServiceInstanceName: emp-social-empreportapplication-html5-srv
+          ServiceKeyName: emp-social-empreportapplication-repo-host-key
+          sap.cloud.service: emp-social-empreportapplication
+        - Authentication: OAuth2UserTokenExchange
+          Name: emp-social-empreportapplication_uaa
+          ServiceInstanceName: emp-social-empreportapplication-xsuaa-srv
+          ServiceKeyName: emp-social-empreportapplication-uaa-key
+          sap.cloud.service: emp-social-empreportapplication
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: emp-social-empreportapplication-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: emp-social-empreportapplication-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - empsocialempreportapplication.zip
+      name: empsocialempreportapplication
+      target-path: resources/
+- name: empsocialempreportapplication
+  type: html5
+  path: .
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: emp-social-empreportapplication-dest-srv
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: emp-social-empreportapplication-dest-srv
+    service-plan: lite
+- name: emp-social-empreportapplication-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: emp-social-empreportapplication-xsuaa-srv
+    service-plan: application
+- name: emp-social-empreportapplication-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: emp-social-empreportapplication-html5-srv
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true

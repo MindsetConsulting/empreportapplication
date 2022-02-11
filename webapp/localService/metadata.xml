@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+    </edmx:Reference>
+    <edmx:DataServices>
+        <Schema Namespace="EmployeeService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+            <EntityContainer Name="EntityContainer">
+                <EntitySet Name="EmployeeHeaderSet" EntityType="EmployeeService.EmployeeHeaderSet">
+                    <NavigationPropertyBinding Path="Projects" Target="EmployeeProjectSet"/>
+                    <NavigationPropertyBinding Path="Blogs" Target="EmployeeBlogSet"/>
+                    <NavigationPropertyBinding Path="Skills" Target="EmployeeSkillSet"/>
+                    <NavigationPropertyBinding Path="Certifications" Target="EmployeeCertificationSet"/>
+                </EntitySet>
+                <EntitySet Name="EmployeeProjectSet" EntityType="EmployeeService.EmployeeProjectSet">
+                    <NavigationPropertyBinding Path="Proj" Target="EmployeeHeaderSet"/>
+                </EntitySet>
+                <EntitySet Name="EmployeeSkillSet" EntityType="EmployeeService.EmployeeSkillSet">
+                    <NavigationPropertyBinding Path="Skill" Target="EmployeeHeaderSet"/>
+                </EntitySet>
+                <EntitySet Name="EmployeeBlogSet" EntityType="EmployeeService.EmployeeBlogSet">
+                    <NavigationPropertyBinding Path="Blog" Target="EmployeeHeaderSet"/>
+                </EntitySet>
+                <EntitySet Name="EmployeeCertificationSet" EntityType="EmployeeService.EmployeeCertificationSet">
+                    <NavigationPropertyBinding Path="Certification" Target="EmployeeHeaderSet"/>
+                </EntitySet>
+                <EntitySet Name="UsefulLinkSet" EntityType="EmployeeService.UsefulLinkSet"/>
+                <EntitySet Name="TechnicalSkillSet" EntityType="EmployeeService.TechnicalSkillSet"/>
+            </EntityContainer>
+            <EntityType Name="EmployeeHeaderSet">
+                <Key>
+                    <PropertyRef Name="EmpId"/>
+                </Key>
+                <Property Name="EmpId" Type="Edm.String" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String"/>
+                <Property Name="PhoneNo" Type="Edm.String"/>
+                <Property Name="Email" Type="Edm.String"/>
+                <Property Name="About" Type="Edm.String"/>
+                <Property Name="Picture" Type="Edm.String"/>
+                <Property Name="Location" Type="Edm.String"/>
+                <Property Name="Role" Type="Edm.String"/>
+                <Property Name="Department" Type="Edm.String"/>
+                <Property Name="Availability" Type="Edm.String"/>
+                <Property Name="CurrentProject" Type="Edm.String"/>
+                <NavigationProperty Name="Projects" Type="Collection(EmployeeService.EmployeeProjectSet)" Partner="Proj">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="Blogs" Type="Collection(EmployeeService.EmployeeBlogSet)" Partner="Blog">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="Skills" Type="Collection(EmployeeService.EmployeeSkillSet)" Partner="Skill">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+                <NavigationProperty Name="Certifications" Type="Collection(EmployeeService.EmployeeCertificationSet)" Partner="Certification">
+                    <OnDelete Action="Cascade"/>
+                </NavigationProperty>
+            </EntityType>
+            <EntityType Name="EmployeeProjectSet">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="Proj_EmpId"/>
+                </Key>
+                <Property Name="ID" Type="Edm.String" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String"/>
+                <Property Name="Description" Type="Edm.String"/>
+                <Property Name="Status" Type="Edm.String"/>
+                <NavigationProperty Name="Proj" Type="EmployeeService.EmployeeHeaderSet" Partner="Projects">
+                    <ReferentialConstraint Property="Proj_EmpId" ReferencedProperty="EmpId"/>
+                </NavigationProperty>
+                <Property Name="Proj_EmpId" Type="Edm.String" Nullable="false"/>
+            </EntityType>
+            <EntityType Name="EmployeeSkillSet">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="Skill_EmpId"/>
+                </Key>
+                <Property Name="ID" Type="Edm.String" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String"/>
+                <Property Name="Description" Type="Edm.String"/>
+                <NavigationProperty Name="Skill" Type="EmployeeService.EmployeeHeaderSet" Partner="Skills">
+                    <ReferentialConstraint Property="Skill_EmpId" ReferencedProperty="EmpId"/>
+                </NavigationProperty>
+                <Property Name="Skill_EmpId" Type="Edm.String" Nullable="false"/>
+            </EntityType>
+            <EntityType Name="EmployeeBlogSet">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="Blog_EmpId"/>
+                </Key>
+                <Property Name="ID" Type="Edm.String" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String"/>
+                <Property Name="Description" Type="Edm.String"/>
+                <NavigationProperty Name="Blog" Type="EmployeeService.EmployeeHeaderSet" Partner="Blogs">
+                    <ReferentialConstraint Property="Blog_EmpId" ReferencedProperty="EmpId"/>
+                </NavigationProperty>
+                <Property Name="Blog_EmpId" Type="Edm.String" Nullable="false"/>
+            </EntityType>
+            <EntityType Name="EmployeeCertificationSet">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                    <PropertyRef Name="Certification_EmpId"/>
+                </Key>
+                <Property Name="ID" Type="Edm.String" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String"/>
+                <Property Name="Description" Type="Edm.String"/>
+                <NavigationProperty Name="Certification" Type="EmployeeService.EmployeeHeaderSet" Partner="Certifications">
+                    <ReferentialConstraint Property="Certification_EmpId" ReferencedProperty="EmpId"/>
+                </NavigationProperty>
+                <Property Name="Certification_EmpId" Type="Edm.String" Nullable="false"/>
+            </EntityType>
+            <EntityType Name="UsefulLinkSet">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.String" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String"/>
+                <Property Name="LinkAddress" Type="Edm.String"/>
+            </EntityType>
+            <EntityType Name="TechnicalSkillSet">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.String" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String"/>
+                <Property Name="Description" Type="Edm.String"/>
+            </EntityType>
+            <Annotations Target="EmployeeService.EmployeeHeaderSet/EmpId">
+                <Annotation Term="Core.Computed" Bool="true"/>
+            </Annotations>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

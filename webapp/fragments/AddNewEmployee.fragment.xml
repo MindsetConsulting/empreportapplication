@@ -1,0 +1,106 @@
+<core:FragmentDefinition 	
+    xmlns:mvc="sap.ui.core.mvc"
+	xmlns:l="sap.ui.layout"
+	xmlns:f="sap.ui.layout.form"
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m" >
+    <Dialog
+      title ="Add New Employee"  class="sapUiSizeCompact">
+        <f:Form id="FormToolbar"
+			editable="true"
+			ariaLabelledBy="Title1">
+            <f:layout>
+                <f:ResponsiveGridLayout
+					labelSpanXL="4"
+					labelSpanL="3"
+					labelSpanM="4"
+					labelSpanS="12"
+					adjustLabelSpan="false"
+					emptySpanXL="0"
+					emptySpanL="4"
+					emptySpanM="0"
+					emptySpanS="0"
+					columnsXL="2"
+					columnsL="1"
+					columnsM="1"
+					singleContainerFullSize="false" />
+            </f:layout>
+            <f:formContainers>
+                <f:FormContainer ariaLabelledBy="Title3">
+                    <f:formElements>
+                        
+                        <f:FormElement label="Name" required="true">
+                            <f:fields>
+                                <Input id="empName" value="{/Name}" liveChange="onLiveChangeName"/>
+                            </f:fields>
+                        </f:FormElement>
+                        <f:FormElement label="Email">
+                            <f:fields>
+                                <Input id="empEmail" value="{/Email}"/>
+                            </f:fields>
+                        </f:FormElement>
+                        <f:FormElement label="Contact Number">
+                            <f:fields>
+                                <Input id="empContact" value="{/PhoneNo}"/>
+                            </f:fields>
+                        </f:FormElement>
+                        <f:FormElement label="Department">
+                            <f:fields>
+                                <!-- <Input value="{/Department}"/> -->
+                                <Select forceSelection="false" selectedKey="{/Department}">
+                                    <core:Item key="Consulting" text="Consulting" />
+                                    <core:Item key="Operations" text="Operations" />
+                                    <core:Item key="Software" text="Software" />
+                                </Select>
+                            </f:fields>
+                        </f:FormElement>
+                        <f:FormElement label="Role">
+                            <f:fields>
+                                <!-- <Input value="{/Role}"/> -->
+                                <Select forceSelection="false" selectedKey="{/Role}">
+                                    <core:Item key="Architect" text="Architect" />
+                                    <core:Item key="Designer" text="Designer" />
+                                    <core:Item key="Developer" text="Developer" />
+                                    <core:Item key="Executive" text="Executive" />
+                                    <core:Item key="Operations" text="Operations" />
+                                    <core:Item key="Scrum Master" text="Scrum Master" />
+                                </Select>
+                            </f:fields>
+                        </f:FormElement>
+                        <f:FormElement label="Location">
+                            <f:fields>
+                                <!-- <Input value="{/Location}"/> -->
+                                <Select forceSelection="false" selectedKey="{/Location}">
+                                    <core:Item key="India" text="India" />
+                                    <core:Item key="US" text="US" />
+                                </Select>
+                            </f:fields>
+                        </f:FormElement>
+                        <!-- <f:FormElement label="Location">
+                            <f:fields>
+                              
+                                <MultiComboBox id="idTechnicalSkills" items="{skillModel>/}" selectionChange="handleTechnicalSkill" selectedKeys="{/Skills}">
+											<core:Item key="{skillModel>Name}" text="{skillModel>Name}"/>
+                                            
+										</MultiComboBox>
+                            </f:fields>
+                        </f:FormElement> -->
+                        
+                        
+                        
+                    </f:formElements>
+                </f:FormContainer>
+            </f:formContainers>
+        </f:Form>
+        <beginButton>
+            <Button
+            text="{i18n>save}"
+            press="onDialogSave"/>
+        </beginButton>
+        <endButton>
+            <Button
+            text="{i18n>cancel}"
+            press="onDialogCancel"/>
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

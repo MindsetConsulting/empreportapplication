@@ -1,0 +1,187 @@
+<mvc:View
+    controllerName="emp.social.empreportapplication.controller.EmployeeList"
+    xmlns:mvc="sap.ui.core.mvc"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:l="sap.ui.layout"
+>
+    <Shell id="shell">
+        <App id="app">
+            <pages>
+                <Page id="page" title="{i18n>title}" titleAlignment="Center" backgroundDesign="Solid">
+                    <content>
+                        <VBox>
+
+						<fb:FilterBar id="FilterBar" clear="onReset" reset="onReset" showRestoreButton="false" showClearButton="true" showClearOnFB="true"
+							showGoOnFB="true" filterBarExpanded="true">
+							<fb:filterGroupItems>
+								<fb:FilterGroupItem groupName="G1" name="Department" label="Department" visibleInFilterBar="true">
+									<fb:control>
+										<MultiComboBox id="idDepartment" selectedKeys="{DataModel>/selectedDepartment}" selectionChange="handleFilterChange">
+											
+
+                                            <core:Item key="consulting" text="Consulting"/>
+                                            <core:Item key="operations" text="Operations"/>
+                                            <core:Item key="software" text="Software"/>
+										</MultiComboBox>
+									</fb:control>
+								</fb:FilterGroupItem>		
+
+                                <fb:FilterGroupItem groupName="G1" name="Role" label="Role" visibleInFilterBar="true">
+									<fb:control>
+										<MultiComboBox  selectionChange="handleFilterChange" selectedKeys="{DataModel>/selectedRole}">
+											<core:Item key="Architect" text="Architect"/>
+                                            <core:Item key="Developer" text="Developer"/>
+                                            <core:Item key="Designer" text="Designer"/>
+                                            <core:Item key="Executive" text="Executive"/>
+                                            <core:Item key="Operations" text="Operations"/>
+                                            <core:Item key="Scrum Master" text="Scrum Master"/>
+                                            
+										</MultiComboBox>
+									</fb:control>
+								</fb:FilterGroupItem>	
+
+                                <fb:FilterGroupItem groupName="G1" name="Location" label="Location" visibleInFilterBar="true">
+									<fb:control>
+										<MultiComboBox selectionChange="handleFilterChange" selectedKeys="{DataModel>/selectedLocation}">
+											<core:Item key="india" text="India"/>
+                                            <core:Item key="us" text="US"/>                                         
+										</MultiComboBox>
+									</fb:control>
+								</fb:FilterGroupItem>	
+
+                                <fb:FilterGroupItem groupName="G1" name="Availability" label="Availability" visibleInFilterBar="true">
+									<fb:control>
+										<MultiComboBox selectionChange="handleFilterChange" selectedKeys="{DataModel>/selectedAvail}">
+											<core:Item key="Yes" text="Yes"/>
+                                            <core:Item key="No" text="No"/>
+										</MultiComboBox>
+									</fb:control>
+								</fb:FilterGroupItem>	
+
+                                 <!--<fb:FilterGroupItem groupName="G1" name="Project Status" label="Project Status" visibleInFilterBar="true">
+									<fb:control>
+										<MultiComboBox selectionChange="reloadData" selectedKeys="{DataModel>/selectedProjStatus}">
+											<core:Item key="Current" text="Current"/>
+                                            <core:Item key="Completed" text="Completed"/>
+                                            <core:Item key="Planned" text="Planned"/>
+										</MultiComboBox>
+									</fb:control>
+								</fb:FilterGroupItem>	-->
+                                <fb:FilterGroupItem groupName="G1" name="Technical Skills" label="Technical Skills" visibleInFilterBar="true">
+									<fb:control>
+										<MultiComboBox id="idTechnicalSkills" items="{skillModel>/}" selectionChange="handleTechnicalSkill" selectedKeys="{DataModel>/selectedTechSkills}">
+											<core:Item key="{skillModel>Name}" text="{skillModel>Name}"/>
+                                            
+										</MultiComboBox>
+									</fb:control>
+								</fb:FilterGroupItem>
+                                				
+							</fb:filterGroupItems>
+						</fb:FilterBar>
+							
+					
+					 </VBox>	
+						<VBox>
+							  <Table id="employeeTable" 
+								items="{empData>/}" inset="true">
+								<headerToolbar>
+			                    <OverflowToolbar>
+				                <content>					
+                                    <SearchField width="30%" liveChange="onSearchTable" placeholder="Name,Email,Phone No,Current Project" class="sapUiSmallMargin" />	
+                                    <ToolbarSpacer/>
+			                        <Button text="Add Employee" press="onPressAddEmployee" type="Ghost"/>
+                                    <Button icon="sap-icon://excel-attachment" type="Ghost" press="onPress" ariaLabelledBy="editButtonLabel"/>
+
+
+				                </content>
+			                    </OverflowToolbar>
+		                        </headerToolbar>
+								<columns>
+									<Column>
+										<header>
+											<Label design="Bold" text="{i18n>emp_name}"/>
+										</header>
+									</Column>
+									<Column width="10rem">
+										<header>
+											<Label design="Bold" text="{i18n>emp_emailId}"/>
+										</header>
+									</Column>
+									<Column>
+										<header>
+											<Label design="Bold" text="{i18n>emp_contact}"/>
+										</header>
+									</Column>
+									<Column  autoPopinMode="true">
+										<header>
+											<Label design="Bold" text="{i18n>emp_curr_project}"/>
+										</header>
+									</Column>
+                                    <Column  width="10rem">
+										<header>
+											<Label design="Bold" text="{i18n>emp_skills}"/>
+										</header>
+									</Column>
+									<Column>
+										<header>
+											<Label design="Bold" text="{i18n>emp_department}"/>
+										</header>
+									</Column>
+									<Column>
+										<header>
+											<Label design="Bold" text="{i18n>emp_role}"/>
+										</header>
+									</Column>
+									<Column>
+										<header>
+											<Label design="Bold" text="{i18n>emp_location}"/>
+										</header>
+									</Column>
+									<Column >
+										<header>
+											<Label design="Bold" text="{i18n>emp_availability}"/>
+										</header>
+									</Column>
+									<!--<Column width="15rem">
+										<header>
+											<Label design="Bold" text="{i18n>emp_about_me}"/>
+										</header>
+									</Column>-->
+                                    <Column width="3rem">
+										<header>
+											<Label text=""/>
+										</header>
+									</Column>
+								</columns>
+								<items>
+									<ColumnListItem id="ResultTableColumnListItem" navigated="true" type="Navigation" press="onNavToEmpProfile">
+										<cells>
+											<Text text="{path : 'empData>Name'}"/>
+											<Text text="{path : 'empData>Email'}"/>											
+											<Text text="{path : 'empData>PhoneNo'}"/>
+											<Text text="{path : 'empData>CurrentProject'}"/>
+                                            <Text text="{path : 'empData>Skills'}"/>
+											<Text text="{path : 'empData>Department'}"/>
+											<Text text="{path : 'empData>Role'}"/>
+											<Text text="{path : 'empData>Location'}"/>
+											<Text text="{path : 'empData>Availability'}"/>
+											<!--<Text text="{path : 'empData>About'}"/> -->
+                                            <Button icon="sap-icon://delete" press="onTableDeleteSkill" type="Transparent"/>
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+							
+						</VBox>
+				
+                    
+                  
+                    </content>
+                </Page>
+            </pages>
+        </App>
+    </Shell>
+</mvc:View>
