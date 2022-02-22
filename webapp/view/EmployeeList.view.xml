@@ -6,6 +6,7 @@
     xmlns:core="sap.ui.core"
     xmlns:fb="sap.ui.comp.filterbar"
     xmlns:l="sap.ui.layout"
+    xmlns:tnt="sap.tnt"
 >
     <Shell id="shell">
         <App id="app">
@@ -14,30 +15,23 @@
                     <content>
                         <VBox>
 
-						<fb:FilterBar id="FilterBar" clear="onReset" reset="onReset" showRestoreButton="false" showClearButton="true" showClearOnFB="true"
-							showGoOnFB="true" filterBarExpanded="true">
+						<fb:FilterBar id="FilterBar" clear="onResetFilters" reset="onReset" showRestoreButton="false" showClearButton="true" showClearOnFB="true"
+							showGoOnFB="false" filterBarExpanded="true">
 							<fb:filterGroupItems>
 								<fb:FilterGroupItem groupName="G1" name="Department" label="Department" visibleInFilterBar="true">
 									<fb:control>
-										<MultiComboBox id="idDepartment" selectedKeys="{DataModel>/selectedDepartment}" selectionChange="handleFilterChange">
-											
+										<MultiComboBox id="idDepartment" items="{departmentModel>/}" selectedKeys="{DataModel>/selectedDepartment}" selectionChange="handleFilterChange">											
 
-                                            <core:Item key="consulting" text="Consulting"/>
-                                            <core:Item key="operations" text="Operations"/>
-                                            <core:Item key="software" text="Software"/>
+                                            <core:Item key="{departmentModel>Name}" text="{departmentModel>Name}"/>
+                                            
 										</MultiComboBox>
 									</fb:control>
 								</fb:FilterGroupItem>		
 
                                 <fb:FilterGroupItem groupName="G1" name="Role" label="Role" visibleInFilterBar="true">
 									<fb:control>
-										<MultiComboBox  selectionChange="handleFilterChange" selectedKeys="{DataModel>/selectedRole}">
-											<core:Item key="Architect" text="Architect"/>
-                                            <core:Item key="Developer" text="Developer"/>
-                                            <core:Item key="Designer" text="Designer"/>
-                                            <core:Item key="Executive" text="Executive"/>
-                                            <core:Item key="Operations" text="Operations"/>
-                                            <core:Item key="Scrum Master" text="Scrum Master"/>
+										<MultiComboBox  id="idRole" items="{roleModel>/}" selectionChange="handleFilterChange" selectedKeys="{DataModel>/selectedRole}">
+											<core:Item key="{roleModel>Name}" text="{roleModel>Name}"/>
                                             
 										</MultiComboBox>
 									</fb:control>
@@ -45,9 +39,8 @@
 
                                 <fb:FilterGroupItem groupName="G1" name="Location" label="Location" visibleInFilterBar="true">
 									<fb:control>
-										<MultiComboBox selectionChange="handleFilterChange" selectedKeys="{DataModel>/selectedLocation}">
-											<core:Item key="india" text="India"/>
-                                            <core:Item key="us" text="US"/>                                         
+										<MultiComboBox id="idlocation" items="{locationModel>/}" selectionChange="handleFilterChange" selectedKeys="{DataModel>/selectedLocation}">
+											<core:Item key="{locationModel>Name}" text="{locationModel>Name}"/>                                       
 										</MultiComboBox>
 									</fb:control>
 								</fb:FilterGroupItem>	
@@ -55,8 +48,11 @@
                                 <fb:FilterGroupItem groupName="G1" name="Availability" label="Availability" visibleInFilterBar="true">
 									<fb:control>
 										<MultiComboBox selectionChange="handleFilterChange" selectedKeys="{DataModel>/selectedAvail}">
-											<core:Item key="Yes" text="Yes"/>
-                                            <core:Item key="No" text="No"/>
+											<core:Item key="Availaible" text="Available"/>
+                                            <core:Item key="Planned" text="Planned"/>
+                                            <core:Item key="Partially Available" text="Partially Available"/>
+                                            <core:Item key="Not Available" text="Not Available"/>
+                                            
 										</MultiComboBox>
 									</fb:control>
 								</fb:FilterGroupItem>	
@@ -78,6 +74,18 @@
 										</MultiComboBox>
 									</fb:control>
 								</fb:FilterGroupItem>
+
+                               <!-- <fb:FilterGroupItem groupName="G1" name="Proficiency" label="Proficiency" visibleInFilterBar="true">
+									<fb:control>
+										<MultiComboBox id="idProficient" selectedKeys="{DataModel>/selectedDepartment}" selectionChange="handleFilterChange">
+											
+
+                                            <core:Item key="Beginner" text="Beginner"/>
+                                            <core:Item key="Intermediate" text="Intermediate"/>
+                                            <core:Item key="Expert" text="Expert"/>
+										</MultiComboBox>
+									</fb:control>
+								</fb:FilterGroupItem>-->
                                 				
 							</fb:filterGroupItems>
 						</fb:FilterBar>
@@ -92,8 +100,10 @@
 				                <content>					
                                     <SearchField width="30%" liveChange="onSearchTable" placeholder="Name,Email,Phone No,Current Project" class="sapUiSmallMargin" />	
                                     <ToolbarSpacer/>
-			                        <Button text="Add Employee" press="onPressAddEmployee" type="Ghost"/>
-                                    <Button icon="sap-icon://excel-attachment" type="Ghost" press="onPress" ariaLabelledBy="editButtonLabel"/>
+                                   
+                                    
+			                        <Button icon="sap-icon://add-employee" press="onPressAddEmployee" type="Ghost"/>
+                                    <Button icon="sap-icon://excel-attachment" type="Ghost" press="onDownloadExcel" ariaLabelledBy="editButtonLabel"/>
 
 
 				                </content>
@@ -157,17 +167,21 @@
 									</Column>
 								</columns>
 								<items>
-									<ColumnListItem id="ResultTableColumnListItem" navigated="true" type="Navigation" press="onNavToEmpProfile">
+									<ColumnListItem id="ResultTableColumnListItem" navigated="true" type="Navigation" press="onNavToEmpProfile" highlight="{path: 'empData>Availability',formatter: '.formatter.getAvailabilityStatus'}">
 										<cells>
 											<Text text="{path : 'empData>Name'}"/>
 											<Text text="{path : 'empData>Email'}"/>											
 											<Text text="{path : 'empData>PhoneNo'}"/>
 											<Text text="{path : 'empData>CurrentProject'}"/>
-                                            <Text text="{path : 'empData>Skills'}"/>
+                                            <!--<Text text="{path : 'empData>Skills'}"/> -->
+                                            <VBox items="{empData>ProfSkills/}">
+                                            <tnt:InfoLabel  text="{empData>SkillName}" colorScheme="{path: 'empData>SkillProf',formatter: '.formatter.getProficiencyColor'}" />
+                                            </VBox>
 											<Text text="{path : 'empData>Department'}"/>
 											<Text text="{path : 'empData>Role'}"/>
 											<Text text="{path : 'empData>Location'}"/>
-											<Text text="{path : 'empData>Availability'}"/>
+                                            <ObjectStatus class="sapUiSmallMarginBottom" text="{empData>Availability}" state="{path: 'empData>Availability',formatter: '.formatter.getAvailabilityStatus'}" />
+											<!--<Text text="{path : 'empData>Availability'}"/>> -->
 											<!--<Text text="{path : 'empData>About'}"/> -->
                                             <Button icon="sap-icon://delete" press="onTableDeleteSkill" type="Transparent"/>
 										</cells>

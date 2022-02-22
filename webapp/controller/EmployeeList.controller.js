@@ -3,22 +3,49 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "emp/social/empreportapplication/utils/FilterUtil"
+    "emp/social/empreportapplication/utils/FilterUtil",
+    "emp/social/empreportapplication/utils/ExcelUtil",
+    "emp/social/empreportapplication/utils/Formatter"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, JSONModel, Filter, FilterOperator, FilterUtil) {
+    function (Controller, JSONModel, Filter, FilterOperator, FilterUtil,ExcelUtil,Formatter) {
         "use strict";
         var that;
         var serviceUrl;
+        var globalIndex;
         return Controller.extend("emp.social.empreportapplication.controller.EmployeeList", {
+            formatter: Formatter,
             onInit: function () {
                 that = this;
                 serviceUrl = this.getView().getModel("empData").sServiceUrl;
                 this.prepareModelForView();
                 this.getTableData();
-                this.setAllFiltersCombobox()
+                this.setAllFiltersCombobox();
+
+                /*var sValue = window.location.hash;
+                /window.saveData = "myValue";
+                if(sValue.includes("sap-iapp-state")){
+
+                    this.getAppStateOnBack();
+                }*/
+
+              
+            },
+
+           
+
+            getAppStateOnBack : function(){
+                var sHash = sap.ui.core.routing.HashChanger.getInstance().getHash();
+                var sAppStateKey = /(?:sap-iapp-state=)([^&=]+)/.exec(sHash)[1];
+                var dataModel = this.getView().getModel("DataModel");
+                
+                sap.ushell.Container.getService("CrossApplicationNavigation")
+                 .getAppState(sAppStateKey)
+                 .done(function (savedAppData) {                     
+                    dataModel.setProperty("selectedDepartment",savedAppData.getData().selectedDepartment);
+                });
             },
 
             prepareModelForView: function () {
@@ -28,7 +55,8 @@ sap.ui.define([
                     selectedRole: [],
                     selectedLocation: [],
                     selectedAvail: [],
-                    //selectedProjStatus: [],
+                    selectedTechSkills : [],
+                    selectedProficiency: [],
 
                 }), "DataModel");
 
@@ -39,6 +67,24 @@ sap.ui.define([
                 this.loadTechnicalSkills().then(function (data) {
 
                     that.getView().setModel(new JSONModel(data), "skillModel");
+
+                });
+
+                this.loadDepartment().then(function (data) {
+
+                    that.getView().setModel(new JSONModel(data), "departmentModel");
+
+                });
+
+                this.loadRole().then(function (data) {
+
+                    that.getView().setModel(new JSONModel(data), "roleModel");
+
+                });
+
+                this.loadLocation().then(function (data) {
+
+                    that.getView().setModel(new JSONModel(data), "locationModel");
 
                 });
             },
@@ -57,6 +103,53 @@ sap.ui.define([
                     });
                 });
             },
+
+            loadDepartment : function(){
+
+                return new Promise(function (resolve, reject) {
+                    $.get({
+                        url: serviceUrl + "/DepartmentSet",
+                        success: function (oData) {
+                            resolve(oData.value);
+                        },
+                        error: function (data) {
+                            reject(data);
+                        }
+                    });
+                });
+            },
+
+            loadRole : function(){
+
+                return new Promise(function (resolve, reject) {
+                    $.get({
+                        url: serviceUrl + "/RoleSet",
+                        success: function (oData) {
+                            resolve(oData.value);
+                        },
+                        error: function (data) {
+                            reject(data);
+                        }
+                    });
+                });
+            },
+
+            loadLocation : function(){
+
+                return new Promise(function (resolve, reject) {
+                    $.get({
+                        url: serviceUrl + "/LocationSet",
+                        success: function (oData) {
+                            resolve(oData.value);
+                        },
+                        error: function (data) {
+                            reject(data);
+                        }
+                    });
+                });
+            },
+
+
 
             loadEmployeeTable: function () {
 
@@ -79,7 +172,17 @@ sap.ui.define([
 
                 this.loadEmployeeTable().then(function (data) {
 
-                    let skillsData = data.filter(item => {
+                    let skills = data.filter(item => {
+                        let tempArray = item.Skills.map(set => { return {
+                            "SkillName" : set.Name,
+                            "SkillProf" : set.Proficiency
+                        } });
+                        
+                        item.ProfSkills = tempArray;
+                        return item;
+                    });
+
+                    let skillsData = skills.filter(item => {
                         let tempArray = item.Skills.map(set => { return set.Name });
                         let tempStr = tempArray.join();
                         item.Skills = tempStr;
@@ -147,7 +250,7 @@ sap.ui.define([
 
             onDialogSave: function (oEvent) {
                 var appData = this._getDialog().getModel().getData();
-
+                var checkValidate = this.checkEmailValidation();
 
                 this._getDialog().setBusy(true);
                 this._getDialog().setBusyIndicatorDelay(0);
@@ -171,6 +274,11 @@ sap.ui.define([
                         this._getDialog().setBusy(false);
                     }.bind(this)
                 });
+
+            },
+
+
+            checkEmailValidation : function(){
 
             },
 
@@ -234,30 +342,18 @@ sap.ui.define([
 
             },
             onTableDeleteSkill: function (oEvent) {
-
-                that.localScope = oEvent;
+               
                 var bindingPath = oEvent.getSource().getBindingContext("empData").getPath();
 				var path = oEvent.getSource().getBindingContext("empData").getPath().lastIndexOf('/') + 1;
 				var dataPath = bindingPath.substring(0, path);
 				var selectedIndex = bindingPath.substring(path);
 				var appData = oEvent.getSource().getModel("empData").getProperty(dataPath);
+                globalIndex = selectedIndex;
+                
 				
-                appData[selectedIndex].DeleteFlag = true;
-                var empId = appData[selectedIndex].EmpId;		               
-                //this.deleteRecordFromDatabase(appData[selectedIndex],empId);
-                /*this.deleteRecordFromDatabase(appData[selectedIndex],empId).then(function () {
-
-                     appData.splice(selectedIndex, 1);
-                     //oEvent.getSource().getModel("empData").refresh();
-                     new sap.m.MessageToast.show("Data Deleted successfully.");
-                     that.getTableData();
-                       
-                },
-                function(reject){
-                    new sap.m.MessageToast.show("Error",reject);
-                });*/
+                
+               // var empId = appData[tempIndex].EmpId;		               
                
-
                 if (!this.oApproveDialog) {
                     this.oApproveDialog = new sap.m.Dialog({
                         type: "Message",
@@ -267,9 +363,9 @@ sap.ui.define([
                             type: "Emphasized",
                             text: "Yes",
                             press: function () {
-                                this.deleteRecordFromDatabase(appData[selectedIndex],empId).then(function () {
+                                this.deleteRecordFromDatabase(appData[globalIndex]).then(function () {
 
-                                    appData.splice(selectedIndex, 1);
+                                    appData.splice(globalIndex, 1);
                                     //oEvent.getSource().getModel("empData").refresh();
                                     new sap.m.MessageToast.show("Data Deleted successfully.");
                                     that.getTableData();
@@ -292,17 +388,30 @@ sap.ui.define([
                 }
     
                 this.oApproveDialog.open();
-
-
-				
-                
+              
 			},
+
+            onDownloadExcel : function(){
+                ExcelUtil.exportToExcel(this.getView().byId("employeeTable"), this);
+            },
 
             onNavToEmpProfile : function(oEvent){
                 var sPath =  oEvent.getSource().getBindingContext("empData").getPath();
                 var navData = oEvent.getSource().getModel("empData").getProperty(sPath);
                 var fetchEmail = navData.Email;
+
+                var appStateData = this.getView().getModel("DataModel").getData();
                 var oCrossAppNav = sap.ushell && sap.ushell.Container && sap.ushell.Container.getService("CrossApplicationNavigation");
+
+                var oAppState = oCrossAppNav.createEmptyAppState(this.getOwnerComponent());
+                oAppState.setData(appStateData);
+                oAppState.save();
+
+                var oHashChanger = sap.ui.core.routing.HashChanger.getInstance();
+                var sOldHash = oHashChanger.getHash();
+                var sNewHash = sOldHash + "?" + "sap-iapp-state=" + oAppState.getKey();
+                oHashChanger.replaceHash(sNewHash);
+
                 var href_For_Product_display = (oCrossAppNav && oCrossAppNav.toExternal({
                     target: {
                         semanticObject: "empsocialempsocialapp",
@@ -311,13 +420,17 @@ sap.ui.define([
                     params: {
                         "EmailId": fetchEmail
                     }
+                   // appStateKey : oAppState.getKey()
                 })) || "";
             },
 
-            deleteRecordFromDatabase : function(appData,empId){
+            deleteRecordFromDatabase : function(appData){
 
                
                 delete appData.Skills;
+                delete appData.ProfSkills;
+                appData.DeleteFlag = true;
+                var empId = appData.EmpId;
                 var myURL = serviceUrl + "/EmployeeHeaderSet/" + empId;
                 
                 return new Promise(function(resolve,reject){
@@ -342,6 +455,17 @@ sap.ui.define([
 
               
 
+            },
+
+            onResetFilters : function(){
+                var dataModel = this.getView().getModel("DataModel");
+               
+                dataModel.setProperty("/selectedDepartment", []);
+                dataModel.setProperty("/selectedRole", []);
+                dataModel.setProperty("/selectedLocation", []);
+                dataModel.setProperty("/selectedAvail", []);
+                dataModel.setProperty("/selectedTechSkills", []);
+                this.getTableData();
             }
 
         });
